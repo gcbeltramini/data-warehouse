@@ -4,24 +4,38 @@ from typing import List
 import psycopg2
 from psycopg2.extensions import connection, cursor
 
+CONFIG_FILE = 'dwh.cfg'
 
-def get_cluster_info(filename: str = 'dwh.cfg') -> configparser.SectionProxy:
+CONFIG = configparser.ConfigParser()
+CONFIG.read(CONFIG_FILE)
+
+
+def get_cluster_info() -> configparser.SectionProxy:
     """
     Read cluster configuration parameters.
-
-    Parameters
-    ----------
-    filename : str
-        File name.
 
     Returns
     -------
     configparser.SectionProxy
         Cluster information (database host address, name, ...).
     """
-    config = configparser.ConfigParser()
-    config.read(filename)
-    return config['CLUSTER']
+    return CONFIG['CLUSTER']
+
+
+def trim_value(val: str) -> str:
+    """
+    Remove quotes (single or double) around string.
+
+    Parameters
+    ----------
+    val : str
+        Value to be trimmed.
+
+    Returns
+    -------
+    str
+    """
+    return val.strip("'").strip('"')
 
 
 def db_connect() -> (connection, cursor):
@@ -34,11 +48,11 @@ def db_connect() -> (connection, cursor):
         Database connection and cursor.
     """
     cluster_info = get_cluster_info()
-    conn = psycopg2.connect(host=cluster_info['HOST'],
-                            dbname=cluster_info['DB_NAME'],
-                            user=cluster_info['DB_USER'],
-                            password=cluster_info['DB_PASSWORD'],
-                            port=cluster_info['DB_PORT'])
+    conn = psycopg2.connect(host=trim_value(cluster_info['HOST']),
+                            dbname=trim_value(cluster_info['DB_NAME']),
+                            user=trim_value(cluster_info['DB_USER']),
+                            password=trim_value(cluster_info['DB_PASSWORD']),
+                            port=trim_value(cluster_info['DB_PORT']))
     cur = conn.cursor()
     return conn, cur
 
