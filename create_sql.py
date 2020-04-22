@@ -107,8 +107,8 @@ def get_copy_statement(table_name: str,
             f"FROM '{data_source:s}'\n"
             f"IAM_ROLE '{iam_role:s}'\n"
             f"REGION '{region:s}'\n"
-            f"FORMAT JSON AS '{json_path:s}'"
-            f"EMPTYASNULL"
+            f"FORMAT JSON AS '{json_path:s}'\n"
+            f"EMPTYASNULL\n"
             f"BLANKSASNULL;")
 
 
