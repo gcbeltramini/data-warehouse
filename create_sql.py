@@ -124,7 +124,7 @@ def get_insert_statement(table_name: str,
     table_name : str
         Table name.
     columns : Sequence[Column]
-        Collection of columns, each with name, type and extra parameters.
+        Collection of columns. Only the name will be used.
     query : str
         All rows produced by the query are inserted into the table. The column
         names don't have to match.
