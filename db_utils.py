@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime
 from typing import List
 
 import psycopg2
@@ -59,7 +60,8 @@ def db_connect() -> (connection, cursor):
 
 def execute_operation(cur: cursor,
                       conn: connection,
-                      commands: List[str]) -> None:
+                      commands: List[str],
+                      verbose: bool = True) -> None:
     """
     Execute database operation.
 
@@ -71,10 +73,18 @@ def execute_operation(cur: cursor,
         Database connection.
     commands : list[str]
         Commands or queries to be executed in the database.
+    verbose : bool, optional
+        Whether to be verbose.
     """
     for c in commands:
+        if verbose:
+            print(80 * '-')
+            print(f'[{datetime.now()}] Running...')
+            print(c)
         cur.execute(c)
         conn.commit()
+        if verbose:
+            print('Done!')
 
 
 def db_run(commands: List[str]) -> None:

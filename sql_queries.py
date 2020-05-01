@@ -5,7 +5,7 @@ from db_utils import trim_value, CONFIG
 # Get the latest values of the user from table "staging_events":
 query_users = '''
 SELECT
-  e.userId AS user_id
+  e.userId AS user_id,
   e.firstName AS first_name,
   e.lastName AS last_name,
   e.gender AS gender,
@@ -70,7 +70,7 @@ FROM (SELECT DISTINCT TIMESTAMP 'EPOCH' + ts/1000 * INTERVAL '1 SECOND' AS t
 # songs in "staging_events".
 query_songplays = '''
 SELECT
-  TIMESTAMP 'EPOCH' + e.ts/1000 * INTERVAL '1 second' AS start_time,
+  TIMESTAMP 'EPOCH' + e.ts/1000 * INTERVAL '1 SECOND' AS start_time,
   e.userId AS user_id,
   e.level,
   s.song_id,
