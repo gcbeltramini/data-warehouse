@@ -55,6 +55,10 @@ def test_get_copy_statement(table_name, data_source, iam_role, json_path,
     ('another_table', [Column('c1', 'anything'), Column('c2', 'my_type')],
      'SELECT <statement>',
      'INSERT INTO another_table (c1, c2)\nSELECT <statement>;'),
+    ('another_table', [Column('c1', 'anything'),
+                       Column('c2', 'my_type', 'IDENTITY(0, 1) NOT NULL')],
+     'SELECT <statement>',
+     'INSERT INTO another_table (c1)\nSELECT <statement>;'),
 ])
 def test_get_insert_statement(table_name, table_info, query, expected):
     result = get_insert_statement(table_name, table_info, query)

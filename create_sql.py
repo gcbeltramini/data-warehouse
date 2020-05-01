@@ -124,7 +124,7 @@ def get_insert_statement(table_name: str,
     table_name : str
         Table name.
     columns : Sequence[Column]
-        Collection of columns. Only the name will be used.
+        Collection of columns. Only parameters "name" and "extra" will be used.
     query : str
         All rows produced by the query are inserted into the table. The column
         names don't have to match.
@@ -140,5 +140,6 @@ def get_insert_statement(table_name: str,
     """
     return ('INSERT INTO {table:s} ({columns:s})\n{query:s};'
             ''.format(table=table_name,
-                      columns=', '.join([c.name for c in columns]),
+                      columns=', '.join([c.name for c in columns
+                                         if 'identity' not in c.extra.lower()]),
                       query=query.strip().rstrip(';')))
