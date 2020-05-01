@@ -4,6 +4,7 @@ from typing import Optional, Sequence
 from db_utils import CONFIG, trim_value
 
 Column = namedtuple('Column', ('name', 'type', 'extra'))
+Column.__new__.__defaults__ = ('',)  # default value for "extra"
 
 
 def get_drop_statement(table: str) -> str:
