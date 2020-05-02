@@ -76,6 +76,19 @@ UI.
 endpoint
 1. Insert the value in file `dwh.cfg` (`[CLUSTER]` --> `HOST`)
 
+## Cleanup
+
+Perform these steps after running the ETL.
+
+1. Delete the cluster:
+   - Redshift: <https://console.aws.amazon.com/redshift/>. Select the cluster and delete it. It is
+   not necessary to create a snapshot.
+1. Revoke access to the port and CIDR/IP address in the security group:
+   - EC2: <https://console.aws.amazon.com/ec2> --> region `us-west-2`
+   - `Network & Security` --> `Security Groups` --> select the security group that was created
+   (e.g., "RedshiftSecurityGroup")
+   - `Inbound rules` --> `Edit inbound rules` --> delete the rule related to Redshift
+
 # Run the ETL
 
 ```bash
