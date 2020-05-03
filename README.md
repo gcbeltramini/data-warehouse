@@ -68,6 +68,11 @@ it in the web browser: <http://udacity-dend.s3.amazonaws.com/log_data/2018/11/20
 The goal is to create a star schema optimized for queries on song play analysis using the song and
 event datasets. This includes the following tables.
 
+### Staging tables
+
+They are temporary tables to stage the data before loading them into the star schema tables. They
+shouldn't be used for analytical purposes.
+
 ### Fact table
 1. **songplays**: records in event data associated with song plays, i.e., records with page `NextSong`
    - `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`,
