@@ -37,7 +37,7 @@ region in the top right corner.
    - `Description`: "Authorize Redshift cluster access"
    - `VPC`: leave the default
 1. `Inbound rules` --> `Add Rule`:
-   - `Type`: Custom TCP
+   - `Type`: Redshift
    - `Protocol`: TCP
    - `Port range`: 5439 (default port for Amazon Redshift)
    - `Source`: "Custom", 0.0.0.0/0; or "My IP", and let AWS find your IP (check [here](https://www.whatsmyip.org))
@@ -64,17 +64,19 @@ UI.
 1. `Node configuration`:
    - `Node type`: dc2.large
    - `Cluster type`: "Multi Node"
-   - `Number of compute nodes`: 4
+   - `Number of compute nodes`: 2 or 4 should be enough
 1. `Additional configuration` (leave the default for the rest):
    - `Publicly accessible`: Yes
+     - This option may not be available in the new UI.
    - `VPC security groups`: choose the security group previously created (e.g.,
    "RedshiftSecurityGroup") - click to select; Command + click or Shift + click to select multiple
    groups.
    - `Available IAM roles`: choose the IAM role previously created (e.g., "myRedshiftRole")
 1. `Launch cluster`. (it takes about 5-10 minutes)
-1. In the list of clusters, click on the cluster created now --> tab `Properties` and copy the
-endpoint
-1. Insert the value in file `dwh.cfg` (`[CLUSTER]` --> `HOST`)
+1. In the list of clusters, click on the cluster created now and copy the endpoint (the cluster must
+be created).
+   - The port can be removed from the end of the endpoint.
+1. Insert the endpoint and password in file `dwh.cfg`, under `[CLUSTER]` (check the other values).
 
 ## Cleanup
 
