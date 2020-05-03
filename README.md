@@ -7,6 +7,7 @@ their processes and data onto the cloud. Their data resides in S3, in a director
 user activity on the app, as well as a directory with JSON metadata on the songs in their app.
 
 The goal is to build an ETL pipeline that:
+
 1. extracts their data from S3;
 1. stages them in Redshift; and
 1. transforms the data into a set of dimensional tables for their analytics team to continue finding
@@ -15,6 +16,7 @@ insights in what songs their users are listening to.
 ## Project datasets
 
 There are two datasets that reside in S3:
+
 - Song data: `s3://udacity-dend/song_data`
 - Log data: `s3://udacity-dend/log_data`
 
@@ -74,11 +76,14 @@ They are temporary tables to stage the data before loading them into the star sc
 shouldn't be used for analytical purposes.
 
 ### Fact table
-1. **songplays**: records in event data associated with song plays, i.e., records with page `NextSong`
+
+1. **songplays**: records in event data associated with song plays, i.e., records with page
+`NextSong`
    - `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`,
    `location`, `user_agent`
 
 ### Dimension tables
+
 1. **users**: users in the app
    - `user_id`, `first_name`, `last_name`, `gender`, `level`
 1. **songs**: songs in music database
