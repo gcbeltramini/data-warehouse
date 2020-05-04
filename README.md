@@ -133,6 +133,9 @@ shouldn't be used for analytical purposes.
    conda deactivate
    ```
 
+   The script `create_tables.py` takes less than 30 seconds, and the script `etl.py` takes about 5
+   minutes (specially due to copy into table `staging_songs`, which takes between 4 and 5 minutes).
+
 1. [Run Python unit tests, queries, debug problems](docs/tests_debug.md).
 1. When finished, delete the Redshift cluster and remove the Python environment:
 `conda env remove -n etl-env-redshift`.
