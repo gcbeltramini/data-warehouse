@@ -126,8 +126,8 @@ shouldn't be used for analytical purposes.
 1. Run the Python scripts:
 
    ```bash
-   conda create -yn etl-env python=3.7 --file requirements/requirements.txt
-   conda activate etl-env
+   conda create -yn etl-env-redshift python=3.7 --file requirements/requirements.txt
+   conda activate etl-env-redshift
    python create_tables.py
    python etl.py
    conda deactivate
@@ -135,4 +135,4 @@ shouldn't be used for analytical purposes.
 
 1. [Run Python unit tests, queries, debug problems](docs/tests_debug.md).
 1. When finished, delete the Redshift cluster and remove the Python environment:
-`conda env remove -n etl-env`.
+`conda env remove -n etl-env-redshift`.

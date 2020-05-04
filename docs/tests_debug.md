@@ -3,8 +3,8 @@
 ## Run the unit tests
 
 ```bash
-conda install -yn etl-env --file requirements/requirements_test.txt
-conda activate etl-env
+conda install -yn etl-env-redshift --file requirements/requirements_test.txt
+conda activate etl-env-redshift
 python -m pytest
 conda deactivate
 ```
@@ -15,10 +15,12 @@ It's possible to run any query on Redshift.
 
 ```bash
 conda install -yn base nb_conda_kernels
-conda install -yn etl-env --file requirements/requirements_dev.txt
+conda install -yn etl-env-redshift --file requirements/requirements_dev.txt
 conda activate base
 jupyter notebook
 ```
+
+In jupyter, choose the kernel `etl-env-redshift`.
 
 ## Check the content of the files in S3
 
