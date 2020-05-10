@@ -38,7 +38,7 @@ GROUP BY song_id'''
 query_artists = '''
 SELECT
   artist_id,
-  MAX(artist_name) AS name,
+  MIN(artist_name) AS name,
   MAX(artist_location) AS location,
   MAX(artist_latitude) AS latitude,
   MAX(artist_longitude) AS longitude
@@ -61,7 +61,7 @@ SELECT
   EXTRACT(WEEKDAY FROM e.t) AS weekday
 FROM (SELECT DISTINCT TIMESTAMP 'EPOCH' + ts/1000 * INTERVAL '1 SECOND' AS t
       FROM staging_events
-      WHERE ts IS NOT NULL) AS e'''
+      WHERE ts IS NOT NULL AND page = 'NextSong') AS e'''
 
 # Get all values from the staging tables. Since there is no song ID nor artist
 # ID in table "staging_events", we need to join both tables using song title,
@@ -80,7 +80,7 @@ SELECT
   e.userAgent AS user_agent
 FROM staging_events AS e
 INNER JOIN staging_songs AS s
-   ON (s.title = e.song AND s.artist_name = e.artist AND s.duration = e.length)
+   ON (s.title = e.song AND s.artist_name = e.artist)
 WHERE e.page = 'NextSong'
   AND e.userId IS NOT NULL
   AND e.ts IS NOT NULL'''
