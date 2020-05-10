@@ -57,7 +57,7 @@ streaming app based on configuration settings.
 two files in this dataset:
   - `log_data/2018/11/2018-11-12-events.json`
   - `log_data/2018/11/2018-11-13-events.json`
-- Example of two lines in log file `log_data/2018/11/2018-11-01-events.json (it's possible to view
+- Example of two lines in log file `log_data/2018/11/2018-11-01-events.json` (it's possible to view
 it in the web browser: <http://udacity-dend.s3.amazonaws.com/log_data/2018/11/2018-11-01-events.json>):
 
   ```text
