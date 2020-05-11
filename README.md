@@ -70,28 +70,112 @@ it in the web browser: <http://udacity-dend.s3.amazonaws.com/log_data/2018/11/20
 The goal is to create a star schema optimized for queries on song play analysis using the song and
 event datasets. This includes the following tables.
 
+The following [AWS Redshift types](https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html)
+were used in the database schema:
+
+- `SMALLINT` = `INT2`: Signed two-byte integer; range -32,768 (`2^15`) to +32,767 (`2^15 - 1`)
+- `INTEGER` = `INT`, `INT4`: Signed four-byte integer (range -2,147,483,648 (`2^31`) to
++2,147,483,647 (`2^31 - 1`)
+- `BIGINT` = `INT8`: Signed eight-byte integer; range -9,223,372,036,854,775,808 (`2^63`) to
+9,223,372,036,854,775,807 (`2^63 - 1`)
+- `DOUBLE PRECISION` = `FLOAT8`, `FLOAT`: Double precision floating-point number (15 significant
+digits of precision)
+- `CHAR` = `CHARACTER`, `NCHAR`, `BPCHAR`: Fixed-length character string; 4,096 bytes
+- `VARCHAR` = `CHARACTER VARYING`, `NVARCHAR`, `TEXT`: Variable-length character string with a
+user-defined limit; 65,535 bytes (`2^16 - 1`)
+- `TIMESTAMP` = `TIMESTAMP WITHOUT TIME ZONE`: Date and time (without time zone); resolution = 1
+microsecond
+
+These types were defined after inspecting the content of the raw JSON files, following
+[this](docs/tests_debug.md#check-the-content-of-the-files-in-s3). Also, data was loaded and
+inspected to check if the types seemed correct.
+
 ### Staging tables
 
 They are temporary tables to stage the data before loading them into the star schema tables. They
-shouldn't be used for analytical purposes.
+shouldn't be used for analytical purposes. The tables are:
+
+- `staging_events` - from `s3://udacity-dend/log_data`, with columns:
+  - `artist`, `auth`, `firstname`, `gender`, `iteminsession`, `lastname`, `length`, `level`,
+  `location`, `method`, `page`, `registration`, `sessionid`, `song`, `status`, `ts`, `useragent`,
+  `userid`
+- `staging_songs` - from `s3://udacity-dend/song_data`, with columns:
+  - `num_songs`, `artist_id`, `artist_latitude`, `artist_longitude`, `artist_location`,
+  `artist_name`, `song_id`, `title`, `duration`, `year`
 
 ### Fact table
 
 1. **songplays**: records in event data associated with song plays, i.e., records with page
 `NextSong`
-   - `songplay_id`, `start_time`, `user_id`, `level`, `song_id`, `artist_id`, `session_id`,
-   `location`, `user_agent`
+   - `songplay_id` (primary key): `INT4`; generated automatically
+   - `start_time`: `TIMESTAMP`; cannot be `NULL`
+   - `user_id`: `INT4`; cannot be `NULL`
+   - `level`: `CHAR(4)` (the possible values are `"free"` or `"paid"`)
+   - `song_id`: `VARCHAR(64)`
+   - `artist_id`: `VARCHAR(64)`
+   - `session_id`: `INT4`
+   - `location`: `VARCHAR`
+   - `user_agent`: `VARCHAR`
+
+   To match the events with song data, we must find a way to join both staging tables:
+   - `staging_events` has columns:
+     - Artist information: name
+     - Song information: title, duration
+   - `staging_songs` has columns:
+     - Artist information: ID, name, latitude, longitude, location
+     - Song information: ID, title, duration, year
+
+   The potential columns for the join are:
+   - artist name
+   - song title
+   - song duration
+
+   The join was made using only artist name and song title, because 9 songs don't have a matching
+   duration (5 of them differed by less than 4 seconds).
 
 ### Dimension tables
 
 1. **users**: users in the app
-   - `user_id`, `first_name`, `last_name`, `gender`, `level`
+   - `user_id` (primary key): `INT4`
+   - `first_name`, `last_name`: `VARCHAR`
+   - `gender`: `CHAR(1)` (the possible values are `"M"` or `"F"`)
+   - `level`: `CHAR(4)` (the possible values are `"free"` or `"paid"`)
+
+   Table `staging_events` contains users that didn't play any song and users who changed levels
+   (paid and free). We chose to keep all users, even if they didn't play any song, and get the
+   latest values to avoid duplicates.
+
 1. **songs**: songs in music database
-   - `song_id`, `title`, `artist_id`, `year`, `duration`
+   - `song_id` (primary key): `VARCHAR(64)`
+   - `title`: `VARCHAR`
+   - `artist_id` `VARCHAR(64)`
+   - `year`: `INT2`
+   - `duration`: `FLOAT8`
+
+   Table `staging_songs` has unique values of song ID, so we can safely select them all. But as a
+   safeguard, we decided to select the maximum value of all attributes - no strong reasons why the
+   maximum value and not other aggregator.
+
 1. **artists**: artists in music database
-   - `artist_id`, `name`, `location`, `latitude`, `longitude`
+   - `artist_id` (primary key): `VARCHAR(64)`
+   - `name`: `VARCHAR`
+   - `location`: `VARCHAR`
+   - `latitude`, `longitude`: `FLOAT8`
+
+   In table `staging_songs` the same artist (same artist ID) may have different artist names,
+   usually associated with songs with other invited artists. We chose the minimum value of the name,
+   possibly leaving only the original artist, since it may be shorter.
+
+   Regarding artist latitude, longitude and location, there are artists with both missing and
+   numeric values, and artists with distinct numeric values. So we chose the maximum value (this
+   removes the missing values and selects one of the numeric values).
+
 1. **time**: timestamps of records in **songplays** broken down into specific units
-   - `start_time`, `hour`, `day`, `week`, `month`, `year`, `weekday`
+   - `start_time` (primary key): `TIMESTAMP`
+   - `hour`, `day`, `week`, `month`, `year`, `weekday`: `INT2`; cannot be `NULL`
+
+   Since the fact table `songplays` has only timestamps of when a song was played, we will choose
+   only those instants from `staging_events`, making sure there are unique and not `NULL`.
 
 ## Project structure
 

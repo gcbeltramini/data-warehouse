@@ -2,7 +2,10 @@ from create_sql import (get_drop_statement, get_create_statement,
                         get_copy_statement, get_insert_statement, Column)
 from db_utils import trim_value, CONFIG
 
-# Get the latest values of the user from table "staging_events":
+# More complete explanation about the queries in the README file, and data
+# exploration to reach to those conclusions in "test_data_sanity_checks.ipynb".
+
+# Get the latest values of all users in table "staging_events".
 query_users = '''
 SELECT
   e.userId AS user_id,
@@ -20,7 +23,7 @@ INNER JOIN (SELECT userId AS user_id, MAX(ts) AS latest_ts
 
 # If there is a conflict in column "song_id" of table "staging_songs", get the
 # largest value of the attributes (arbitrary decision to choose one line per
-# song):
+# song).
 query_songs = '''
 SELECT
   song_id,
@@ -32,9 +35,10 @@ FROM staging_songs
 WHERE song_id IS NOT NULL
 GROUP BY song_id'''
 
-# If there is a conflict in column "artist_id" of table "staging_songs", get
-# the largest value of the attributes (arbitrary decision to choose one line
-# per artist):
+# If there is a conflict in column "artist_id" of table "staging_songs", get:
+# - the minimum of "artist_name" (trying to remove invited artists)
+# - the largest value of the other attributes (arbitrary decision to choose one
+#   line per artist, also removing missing missing when a numeric value exists)
 query_artists = '''
 SELECT
   artist_id,
@@ -46,8 +50,10 @@ FROM staging_songs
 WHERE artist_id IS NOT NULL
 GROUP BY artist_id'''
 
-# Select only distinct values of the timestamp in table "staging_events" and
-# convert Unix timestamp into timestamp, using the trick described here
+# Select only distinct non-null values of the timestamp in table
+# "staging_events" of instants related to when a song was played. It is
+# necessary to convert Unix timestamp into timestamp, using the trick described
+# here:
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html.
 # Reference for the time parts: https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html.
 query_time = '''
@@ -68,6 +74,9 @@ FROM (SELECT DISTINCT TIMESTAMP 'EPOCH' + ts/1000 * INTERVAL '1 SECOND' AS t
 # artist name and song duration, which should uniquely describe a song. And
 # this is the best we can do, because there is no other information about the
 # songs in "staging_events".
+# Since 9 songs have the same artist and title but not the same matching
+# duration (5 of them with less than 4 seconds in difference), we will not use
+# this information.
 query_songplays = '''
 SELECT
   TIMESTAMP 'EPOCH' + e.ts/1000 * INTERVAL '1 SECOND' AS start_time,
